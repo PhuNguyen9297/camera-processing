@@ -1,0 +1,71 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  camera-processing
+
+  SAM Template for camera-processing
+
+Parameters:
+  S3Bucket:
+    Type: String
+    Description: S3 Bucket name
+  TimeRange:
+    Type: Number
+    Description: Merge video pieces belong to each time range
+
+Resources:
+  FFmpeg:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: ffmpeg-x86_64
+      CompatibleArchitectures:
+        - x86_64
+      ContentUri: layers/ffmpeg
+
+  CameraProcessingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: camera_processing/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref FFmpeg
+      Events:
+        Trigger:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 0/2 * * ? *)
+            Description: Trigger merge videos
+            Enabled: true
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref S3Bucket
+          TIME_RANGE: !Ref TimeRange
+      Timeout: 600
+      MemorySize: 512
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "s3:PutObject"
+                - "s3:GetObject"
+              Resource:
+                - !Sub "arn:aws:s3:::${S3Bucket}/*"
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - "s3:ListBucket"
+              Resource:
+                - !Sub "arn:aws:s3:::${S3Bucket}"
+
+Outputs:
+  CameraProcessingFunction:
+    Description: "Camera Processing Lambda Function ARN"
+    Value: !GetAtt CameraProcessingFunction.Arn
+  CameraProcessingFunctionIamRole:
+    Description: "Implicit IAM Role created for Camera Processing function"
+    Value: !GetAtt CameraProcessingFunctionRole.Arn
