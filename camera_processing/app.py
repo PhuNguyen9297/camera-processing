@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     time_mark = (math.ceil(datetime.now().timestamp() / TIME_RANGE) * TIME_RANGE) - TIME_RANGE
 
     # Create dir for storing video pieces
-    os.system(f'mkdir {LOCAL_STORAGE_DIR}')
+    os.system(f'rm -rf {LOCAL_STORAGE_DIR} && mkdir {LOCAL_STORAGE_DIR}')
 
     download_video_pieces(time_mark)
     files = os.listdir(LOCAL_STORAGE_DIR)

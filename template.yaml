@@ -44,7 +44,9 @@ Resources:
           S3_BUCKET: !Ref S3Bucket
           TIME_RANGE: !Ref TimeRange
       Timeout: 600
-      MemorySize: 512
+      MemorySize: 1024
+      EphemeralStorage:
+        Size: 4096
       Policies:
         - Version: "2012-10-17"
           Statement:

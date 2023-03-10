@@ -19,7 +19,7 @@ lint = true
 [default.deploy]
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
-confirm_changeset = true
+confirm_changeset = false
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-17r5u7y5x9h2s"
 s3_prefix = "camera-processing"
 region = "ap-southeast-1"
